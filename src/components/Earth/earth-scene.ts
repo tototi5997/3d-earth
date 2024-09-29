@@ -2,11 +2,11 @@ import { AmbientLight, PerspectiveCamera, Scene, SpotLight, WebGLRenderer, Vecto
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { countries } from "@/constants/countries";
 import { Earth } from "./earth";
-import * as TWEEN from "@tweenjs/tween.js";
+import { Group as TWGroup } from "@tweenjs/tween.js";
 import City from "./city";
 import Link from "./link";
-import { countries } from "@/constants/countries";
 
 export class EarthScene {
   private containerWidth: number;
@@ -18,6 +18,8 @@ export class EarthScene {
   private composer: EffectComposer;
   private controls: OrbitControls;
   private earthGroup: Group; // 和地球一起旋转的内容
+
+  private allTweenGroup: TWGroup;
 
   private shanghai: City;
   private cities: { city: City; link: Link }[];
@@ -95,7 +97,9 @@ export class EarthScene {
     this.scene.add(earthGlow);
 
     this.cities = [];
-    window.setInterval(() => this.createActivity(), 4000);
+    this.allTweenGroup = new TWGroup();
+    this.allTweenGroup.add(...this.shanghai.getTweenGroup());
+    setInterval(() => this.createActivity(), 4000);
 
     this.render();
   }
@@ -117,21 +121,27 @@ export class EarthScene {
     this.camera.layers.set(0);
     this.renderer.render(this.scene, this.camera);
 
-    TWEEN.update();
+    // TWEEN.update();
+    this.allTweenGroup.update();
 
     // this.stats.end()
   }
 
   private createActivity() {
     const length = countries.length;
-    const index = Math.floor(Math.random() * length);
+    const fromIndex = Math.floor(Math.random() * length);
 
-    const fromCity = new City(countries[index].position);
+    const fromCity = new City(countries[fromIndex].position);
     const link = new Link(fromCity, this.shanghai);
+
     this.earthGroup.add(fromCity.getMesh());
     this.earthGroup.add(link.getMesh());
+    this.allTweenGroup.add(...link.getTweenGroup());
+    this.allTweenGroup.add(...fromCity.getTweenGroup());
 
     this.cities.push({ city: fromCity, link });
+
+    // when the number of cities is greater than 5, remove the first one
     if (this.cities.length > 5) {
       const drop = this.cities.shift() as { city: City; link: Link };
       this.earthGroup.remove(drop.city.getMesh());

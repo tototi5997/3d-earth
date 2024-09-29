@@ -15,5 +15,7 @@ module.exports = {
     "react-hooks/exhaustive-deps": "off",
     // 使用 any
     "@typescript-eslint/no-explicit-any": "warn",
+    // 使用 debugger
+    "no-debugger": "warn",
   },
 };

@@ -1,6 +1,7 @@
 import { HashRouter, BrowserRouter, RouteObject, Navigate } from "react-router-dom";
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import NotFoundPage from "./pages/404";
+import TestTween from "./pages/test-tween";
 
 export type RouterType = "hash" | "browser";
 
@@ -21,6 +22,10 @@ export const routerConfig: RouteObject[] = [
   {
     path: "/home",
     element: <Home />,
+  },
+  {
+    path: "/test",
+    element: <TestTween />,
   },
   // 404 放在最下面
   {

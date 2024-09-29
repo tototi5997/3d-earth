@@ -1,7 +1,6 @@
 import * as THREE from "three";
-// import { MeshLine, MeshLineMaterial } from "three.meshline";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
-import * as TWEEN from "@tweenjs/tween.js";
+import { Tween, Easing, Group } from "@tweenjs/tween.js";
 import City from "./city";
 
 const LINK_COLOR = 0x24e5ff;
@@ -10,11 +9,13 @@ export default class Link {
   private city1: City;
   private city2: City;
   private linkGroup: THREE.Group;
+  private tweens: Tween[];
 
   constructor(city1: City, city2: City) {
     this.city1 = city1;
     this.city2 = city2;
     this.linkGroup = new THREE.Group();
+    this.tweens = [];
 
     this.drawLine();
     this.drawRing();
@@ -38,27 +39,40 @@ export default class Link {
 
     const curvePoints = curve.getPoints(100);
     const material = new MeshLineMaterial({
-      color: LINK_COLOR,
+      color: new THREE.Color(LINK_COLOR),
       opacity: 0.7,
+      lineWidth: 1,
+      useMap: 0,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
-      // transparent: true,
-    });
-    const lineLength = { value: 0 };
-    const line = new MeshLineGeometry();
-    const drawLineTween = new TWEEN.Tween(lineLength).to({ value: 100 }, 3000);
-    drawLineTween.onUpdate(function () {
-      line.setPoints(curvePoints.slice(0, lineLength.value + 1), (p: number) => 0.2 + p / 2);
-    });
-    const eraseLineTween = new TWEEN.Tween(lineLength).to({ value: 0 }, 3000);
-    eraseLineTween.onUpdate(function () {
-      line.setPoints(curvePoints.slice(curvePoints.length - lineLength.value, curvePoints.length), (p: number) => 0.2 + p / 2);
     });
 
+    const lineLength = { value: 0 };
+    const line = new MeshLineGeometry();
+
+    // line.setPoints(curvePoints);
+    // 绘制
+    const drawLineTween = new Tween(lineLength).to({ value: 100 }, 3000);
+    drawLineTween.onUpdate(() => {
+      const visiblePoints = Math.floor((lineLength.value / 100) * curvePoints.length);
+      line.setPoints(curvePoints.slice(0, visiblePoints));
+    });
+
+    // 擦除
+    const eraseLineTween = new Tween(lineLength).to({ value: 0 }, 3000);
+    eraseLineTween
+      .onUpdate(function () {
+        line.setPoints(curvePoints.slice(curvePoints.length - lineLength.value, curvePoints.length));
+      })
+      .onComplete(() => {
+        this.destroy();
+      });
+
     drawLineTween.start();
+    this.tweens.push(drawLineTween);
+    this.tweens.push(eraseLineTween);
     setTimeout(() => eraseLineTween.start(), 6000);
 
     const mesh = new THREE.Mesh(line, material);
-    console.log("🚀 ~ Link ~ mesh:", mesh)
     this.linkGroup.add(mesh);
   };
 
@@ -71,21 +85,32 @@ export default class Link {
       opacity: 0,
       transparent: true,
     });
+
     const ringOutter = new THREE.Mesh(outter, materialOutter);
     ringOutter.position.copy(this.city2.getPosition());
     ringOutter.lookAt(new THREE.Vector3(0, 0, 0));
+
     const ringScale = { value: 1 };
-    const drawRingTween = new TWEEN.Tween(ringScale).to({ value: 1.1 }, 200);
-    drawRingTween.onUpdate(function () {
-      materialOutter.opacity = 0.5;
-      ringOutter.scale.set(ringScale.value, ringScale.value, ringScale.value);
-    });
-    const drawRingTweenBack = new TWEEN.Tween(ringScale).to({ value: 1 }, 1000);
-    drawRingTweenBack.onUpdate(function () {
+    const drawRingTween = new Tween(ringScale).to({ value: 1.1 }, 200);
+
+    const drawRingTweenBack = new Tween(ringScale).to({ value: 0 }, 200);
+    drawRingTweenBack.easing(Easing.Circular.In).onUpdate(() => {
       materialOutter.opacity = ringScale.value - 1;
     });
-    drawRingTween.easing(TWEEN.Easing.Circular.Out).delay(3000).chain(drawRingTweenBack.easing(TWEEN.Easing.Circular.In)).start();
+
+    drawRingTween
+      .delay(3000)
+      .easing(Easing.Circular.Out)
+      .onUpdate(function () {
+        materialOutter.opacity = 0.5;
+        ringOutter.scale.set(ringScale.value, ringScale.value, ringScale.value);
+      })
+      .chain(drawRingTweenBack)
+      .start();
+
     this.linkGroup.add(ringOutter);
+    this.tweens.push(drawRingTween);
+    this.tweens.push(drawRingTweenBack);
   }
 
   getMesh() {
@@ -94,6 +119,10 @@ export default class Link {
 
   destroy() {
     this.linkGroup.clear();
+  }
+
+  getTweenGroup() {
+    return this.tweens;
   }
 }
 

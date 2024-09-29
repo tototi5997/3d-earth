@@ -6,7 +6,7 @@ const Earth3D = () => {
 
   useEffect(() => {
     if (earthRef.current) {
-      new EarthScene(earthRef.current, 800);
+      new EarthScene(earthRef.current, 1200);
     }
   }, [earthRef]);
   return <div ref={earthRef}></div>;
