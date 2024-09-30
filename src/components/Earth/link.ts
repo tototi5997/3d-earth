@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
-import { Tween, Easing, Group } from "@tweenjs/tween.js";
+import { Tween, Easing } from "@tweenjs/tween.js";
 import City from "./city";
 
 const LINK_COLOR = 0x24e5ff;

@@ -1,7 +1,11 @@
-# Zli Template
+# Gt-Earth
 
-This template work with Zli.
+The replica of 3d earth in github homepage.
 
-Currently, Zli are available:
+```js
+pnpm i @zlicom/gt-earth -D
+```
 
-- [@tototi5997/zli](https://github.com/tototi5997/my-cli)
+```ts
+import Earth from "@zlicom/gt-earth";
+```

@@ -1,7 +1,8 @@
 {
-  "name": "3d-earth",
-  "private": true,
-  "version": "1.0.0",
+  "name": "@zlicom/gt-earth",
+  "main": "dist/3d-earth.es.js",
+  "module": "dist/3d-earth.es.js",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "start": "vite",
@@ -9,11 +10,22 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
+  "files": [
+    "dist/3d-earth.es.js",
+    "README.md"
+  ],
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.1"
   },
+  "keywords": [
+    "react",
+    "3d",
+    "earth",
+    "webgl"
+  ],
+  "author": "tototi",
   "devDependencies": {
     "@tweenjs/tween.js": "^25.0.0",
     "@types/react": "^18.2.43",
@@ -22,6 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "@zlicom/gt-earth": "^1.0.1",
     "antd": "^5.12.8",
     "autoprefixer": "^10.4.16",
     "axios": "^1.7.7",
@@ -36,6 +49,7 @@
     "meshline": "^3.3.1",
     "postcss": "^8.4.32",
     "react-i18next": "^14.1.1",
+    "rollup-plugin-typescript2": "^0.36.0",
     "tailwindcss": "^3.4.0",
     "three": "^0.169.0",
     "typescript": "^5.2.2",
